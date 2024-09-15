@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filtered Sociabuzz Alert</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@700&display=swap'); /* Include Open Sans font */
+
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            color: black;
+            font-size: 48px;
+            text-align: center;
+            flex-direction: column;
+            font-family: 'Open Sans', sans-serif; /* Apply Open Sans font */
+        }
+
+        #gif-container, #amount-supporter, #alert-message {
+            display: none; /* Hide initially */
+            opacity: 0; /* Start with zero opacity */
+            transition: opacity 1s ease-out; /* Fade-out effect */
+        }
+
+        #gif-container {
+            margin-bottom: 20px;
+        }
+
+        #gif-container img {
+            width: 442px;
+            height: auto;
+        }
+
+        #amount-supporter {
+            font-size: 34px;
+            margin-bottom: 20px;
+            color: #76cc11;
+            font-weight: bold;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; /* Black outline */
+        }
+
+        #amount-supporter span {
+            color: white;
+            font-size: 34px;
+        }
+
+        #alert-message {
+            font-size: 27px;
+            color: #f5f020;
+            font-weight: bold;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; /* Black outline */
+        }
+    </style>
+</head>
+<body>
+    <div id="gif-container">
+        <img src="https://storage.sociabuzz.com/storage/img/gif/thanks.gif" alt="GIF Animation"> <!-- Path to your GIF -->
+    </div>
+    <div id="amount-supporter"></div>
+    <div id="alert-message"></div>
+
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script>
+        const userId = window.location.pathname.split('/').pop();
+        const socket = io();
+
+        const showAlertEvent = `show_alert_${userId}`;
+
+        socket.on(showAlertEvent, function(data) {
+            showAlert(data.amount, data.supporter, data.message);
+        });
+
+        function showAlert(amount, supporter, message) {
+            const gifContainer = document.getElementById('gif-container');
+            const amountSupporterDiv = document.getElementById('amount-supporter');
+            const alertMessageDiv = document.getElementById('alert-message');
+
+            // Update the text content, wrap "dari" in a span for white color
+            amountSupporterDiv.innerHTML = `${amount} <span>dari</span> ${supporter}`;
+            alertMessageDiv.innerText = message;
+
+            // Show elements
+            gifContainer.style.display = 'block';
+            amountSupporterDiv.style.display = 'block';
+            alertMessageDiv.style.display = 'block';
+
+            // Make them fully visible
+            setTimeout(() => {
+                gifContainer.style.opacity = 1;
+                amountSupporterDiv.style.opacity = 1;
+                alertMessageDiv.style.opacity = 1;
+            }, 10); // Small delay to trigger CSS transition
+
+            // Hide elements after 5 seconds with fade-out effect
+            setTimeout(() => {
+                gifContainer.style.opacity = 0;
+                amountSupporterDiv.style.opacity = 0;
+                alertMessageDiv.style.opacity = 0;
+
+                // Hide the elements after fade-out completes
+                setTimeout(() => {
+                    gifContainer.style.display = 'none';
+                    amountSupporterDiv.style.display = 'none';
+                    alertMessageDiv.style.display = 'none';
+                }, 1000); // Match this with the transition duration
+            }, 5000); // Display duration
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Filter Words{% endblock %}
+
+{% block content %}
+        <h2 class="text-center">Manage Your Words</h2>
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="alert alert-info">
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="mb-3">
+                <label for="clean_option" class="form-label">Filter Option</label>
+                <select class="form-select" id="clean_option" name="clean_option" required>
+                    <option value="random" {% if user.clean_option == 'random' %}selected{% endif %}>Random Good Words</option>
+                    <option value="fixed" {% if user.clean_option == 'fixed' %}selected{% endif %}>Fixed Good Words</option>
+                </select>
+            </div>
+            <div id="fixed_options" {% if user.clean_option != 'fixed' %}style="display: none;"{% endif %}>
+                <div class="mb-3">
+                    <label for="fixed_supporter" class="form-label">Fixed Good Word for Supporter</label>
+                    <input type="text" class="form-control" id="fixed_supporter" name="fixed_supporter" value="{{ user.fixed_supporter or '' }}">
+                </div>
+                <div class="mb-3">
+                    <label for="fixed_message" class="form-label">Fixed Good Word for Message</label>
+                    <input type="text" class="form-control" id="fixed_message" name="fixed_message" value="{{ user.fixed_message or '' }}">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+        </form>
+        
+        <hr>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <h3>Your Bad Words</h3>
+                <form method="POST" action="{{ url_for('main.add_bad_word') }}">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="bad_word" placeholder="Add new bad word" required>
+                        <button class="btn btn-danger" type="submit">Add</button>
+                    </div>
+                </form>
+                <ul class="list-group">
+                    {% for bad_word in user.bad_words %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ bad_word.word }}
+                            <form method="POST" action="{{ url_for('main.delete_bad_word', word_id=bad_word.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item">No bad words added.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="col-md-6">
+                <h3>Your Good Words</h3>
+                <form method="POST" action="{{ url_for('main.add_good_word') }}">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" name="good_word" placeholder="Add new good word" required>
+                        <button class="btn btn-success" type="submit">Add</button>
+                    </div>
+                </form>
+                <ul class="list-group">
+                    {% for good_word in user.good_words %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ good_word.word }}
+                            <form method="POST" action="{{ url_for('main.delete_good_word', word_id=good_word.id) }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="list-group-item">No good words added.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <hr class="mt-5">
+
+        <div class="mb-3">
+            <h3>Stream Widget</h3>
+            <div class="mb-3">
+                <label for="fixed_supporter" class="form-label">Sociabuzz Webhook Link</label>
+                <input type="text" class="form-control" value="{{ request.host_url }}webhook/{{ user.id }}" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="fixed_supporter" class="form-label">Browser Source Link</label>
+                <input type="text" class="form-control" value="{{ request.host_url }}alert/{{ user.id }}" disabled>
+            </div>
+        </div>
+{% endblock %}
+    
+<script>
+    $(document).ready(function(){
+        $('#clean_option').change(function(){
+            if ($(this).val() == 'fixed') {
+                $('#fixed_options').slideDown();
+            } else {
+                $('#fixed_options').slideUp();
+            }
+        });
+    });
+</script>
